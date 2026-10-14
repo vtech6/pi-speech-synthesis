@@ -1,0 +1,23 @@
+{
+	"name": "pi-tts",
+	"version": "0.1.0",
+	"description": "Speak pi's replies as they stream, and dictate prompts, with local MLX voice models (Qwen3-TTS, Qwen3-ASR).",
+	"type": "module",
+	"license": "MIT",
+	"author": "vtech6",
+	"repository": {
+		"type": "git",
+		"url": "git+https://github.com/vtech6/pi-speech-synthesis.git"
+	},
+	"keywords": ["pi-package", "pi", "tts", "stt", "asr", "voice", "mlx", "macos"],
+	"pi": {
+		"extensions": ["extensions/pi-tts/index.ts"]
+	},
+	"peerDependencies": {
+		"@earendil-works/pi-coding-agent": "*",
+		"@earendil-works/pi-tui": "*"
+	},
+	"engines": {
+		"node": ">=20"
+	}
+}

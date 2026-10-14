@@ -1,0 +1,21 @@
+{
+	"_how_to_use": "Copy this file to ~/.pi/agent/pi-tts/personas.json (or point PI_TTS_PERSONAS at it) and edit it, or let /persona add write the entries for you. One entry per voice, keyed by the name you type after /persona. Only refAudio is required; everything else has a default. Paths may start with ~ or be relative to this file. Keys starting with _ are ignored. PERSONAS.md explains each key and what makes a usable clip.",
+	"my-voice": {
+		"label": "My voice",
+		"refAudio": "~/.cache/pi-tts/ref.wav",
+		"refText": "This is the reference clip, and this sentence is exactly what it says, word for word.",
+		"lang": "english",
+		"sample": "Testing one two three. The voice is working.",
+		"thinking": "high",
+		"character": ""
+	},
+	"narrator": {
+		"label": "Narrator",
+		"refAudio": "~/.cache/pi-tts/voices/narrator.wav",
+		"refText": "The clip does not have to be long, but it has to be clean, and it has to be transcribed exactly.",
+		"lang": "english",
+		"sample": "Chapter one.",
+		"thinking": "medium",
+		"character": "Speak as a patient narrator, reading to someone who is listening while working with their hands.\nDo the engineering work precisely and completely: the persona colors the prose, never the facts, the commands or the code.\n- Plain sentences, level tone, no exclamation marks, no emoji.\n- Finish the thought before adding the caveat.\n- When something failed, say that first and what to do next second."
+	}
+}

@@ -1,0 +1,19 @@
+# Python side of pi-tts: the two helper processes in extensions/pi-tts/.
+# Install with scripts/setup.sh, or:
+#   python3 -m venv ~/.cache/pi-tts/venv && ~/.cache/pi-tts/venv/bin/pip install -r requirements.txt
+#
+# Tested on Apple Silicon with python 3.11, mlx-audio 0.5.8, mlx 0.32.3,
+# transformers 5.19.0. mlx-audio brings mlx, transformers, huggingface_hub,
+# miniaudio and scipy; the four below are what the helpers import directly.
+
+mlx-audio>=0.5.8
+sounddevice>=0.5.6
+soundfile>=0.14.0
+numpy>=2.0,<3
+
+# Model downloads (hf download). Pulled in by mlx-audio anyway; pinned here
+# because scripts/setup.sh calls the `hf` CLI.
+huggingface_hub>=0.26
+
+# Only for `/voice read <file.pdf>`; imported lazily by pi_tts.py.
+pypdf>=5.0

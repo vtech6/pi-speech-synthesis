@@ -1,4 +1,4 @@
-# pi-tts
+# Pi Speech Synthesis
 
 Speak [pi](https://github.com/badlogic/pi-mono) out loud, and dictate prompts back, with local
 MLX voice models. No cloud, no API key, nothing leaves the machine.
@@ -174,7 +174,9 @@ audio that session makes — which is why the answer gets better, and says so, a
 ## Configuration
 
 Everything has a default that `setup.sh` satisfies; the environment wins over `personas.json`,
-which wins over the defaults saved by `s` in the settings window.
+which wins over the defaults saved by `s` in the settings window. The names are the original
+`pi-tts` ones — the cache directory, the personas file, the extension directory and every `PI_TTS_*`
+variable still carry that prefix; only the project was renamed.
 
 | variable | default | |
 |---|---|---|

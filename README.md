@@ -1,4 +1,4 @@
-# Pi Speech Synthesis
+# Pi Speech Synthesis ( ͡° ͜ʖ ͡°)
 
 Speak [pi](https://github.com/badlogic/pi-mono) out loud, and dictate prompts back, with local
 MLX voice models. No cloud, no API key, nothing leaves the machine.

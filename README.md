@@ -11,15 +11,28 @@ have a conversation than a typing session.
 
 Two models are in the box, both local:
 
-| | model | size |
-|---|---|---|
-| speaking | `mlx-community/Qwen3-TTS-12Hz-0.6B-Base-8bit` | ~1.3 GB |
-| listening | `mlx-community/Qwen3-ASR-0.6B-8bit` | ~1.0 GB |
+|           | model                                         | size    |
+| --------- | --------------------------------------------- | ------- |
+| speaking  | `mlx-community/Qwen3-TTS-12Hz-0.6B-Base-8bit` | ~1.3 GB |
+| listening | `mlx-community/Qwen3-ASR-0.6B-8bit`           | ~1.0 GB |
 
 Both stay resident in one long-lived process each, so the model load is paid once at session
 start instead of per utterance.
 
-**Requires macOS on Apple Silicon** (MLX, and the audio timing work below is CoreAudio-specific).
+## Requirements
+
+**macOS on an Apple Silicon Mac — M1, M2, M3, M4, M5. Nothing else, for now.**
+
+|            |                                                                                                                                                                                                                     |
+| ---------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| machine    | Apple Silicon only. MLX is the inference stack and it is arm64-only, so an Intel Mac will not load either model, and neither will Linux or Windows. The streaming timing on top is CoreAudio-specific too.          |
+| disk       | ~2.3 GB for the two models, plus the python environment `setup.sh` builds                                                                                                                                           |
+| python     | 3.11 or newer; tested on 3.11 with mlx-audio 0.5.8 (see `requirements.txt`)                                                                                                                                         |
+| microphone | dictation only — System Settings → Privacy & Security → Microphone, allow your terminal. Speaking, reading and rendering all work without it, and `/persona listen file <path>` transcribes without any permission. |
+
+`scripts/setup.sh` warns rather than stops on an Intel Mac or on Linux, so you find out at model
+load time rather than install time. Porting this means another inference backend and another audio
+clock; both are kept inside `pi_tts.py`, which is the only reason to think it is possible.
 
 ## Quick start
 
@@ -113,31 +126,31 @@ One command, `/persona`: it drives the voice, the voices file, dictation and the
 argument opens the settings window. `/persona help` prints all of this in the terminal, with the
 state the session is actually in.
 
-| | |
-|---|---|
-| `/persona` | the settings window: voice, mode, persona, thinking, volume, dictation — `s` saves |
-| `/persona help` | every row below, in the terminal |
-| **the voice** | |
-| `/persona on\|off` | speak or stay quiet |
-| `/persona stop` | cut the current utterance off |
-| `/persona say <text>` | say this instead of a reply |
-| `/persona read <file>` | read a `.txt`, `.md` or `.pdf` aloud (`.pdf` needs `pypdf`) |
-| `/persona render [stop\|status\|measure\|<file> [out]]` | turn a file into an audio file in the background, with a progress bar |
-| `/persona measure <file>` | how long and how big that render would be, without doing it |
-| `/persona test` | say this persona's `sample` line, in that voice — the audio check |
-| `/persona mode coding\|talking` | coding leaves the system prompt alone; talking injects the persona |
-| **the voices** — `~/.pi/agent/pi-tts/personas.json` | |
-| `/persona <name>` | switch voice (and personality) mid-session |
-| `/persona add` | guided: path to the clip, what it says, a name, a personality |
-| `/persona manage` | the voices submenu: use a voice, change its details, remove it |
-| `/persona edit <name>` | change one entry, each question showing what is filed now |
-| `/persona remove <name>` | drop it from the file; the clip stays on disk |
-| `/persona list` | the voices this session loaded, and the file they came from |
-| **dictation** | |
-| `ctrl+i` | press to talk, press again to stop |
-| `ctrl+shift+i` | throw the capture away |
-| `/persona listen` | start dictating — the same thing `ctrl+i` does |
-| `/persona listen stop\|cancel\|on\|off\|consecutive\|conversation\|auto\|file <path>` | dictation, by command |
+|                                                                                       |                                                                                    |
+| ------------------------------------------------------------------------------------- | ---------------------------------------------------------------------------------- |
+| `/persona`                                                                            | the settings window: voice, mode, persona, thinking, volume, dictation — `s` saves |
+| `/persona help`                                                                       | every row below, in the terminal                                                   |
+| **the voice**                                                                         |                                                                                    |
+| `/persona on\|off`                                                                    | speak or stay quiet                                                                |
+| `/persona stop`                                                                       | cut the current utterance off                                                      |
+| `/persona say <text>`                                                                 | say this instead of a reply                                                        |
+| `/persona read <file>`                                                                | read a `.txt`, `.md` or `.pdf` aloud (`.pdf` needs `pypdf`)                        |
+| `/persona render [stop\|status\|measure\|<file> [out]]`                               | turn a file into an audio file in the background, with a progress bar              |
+| `/persona measure <file>`                                                             | how long and how big that render would be, without doing it                        |
+| `/persona test`                                                                       | say this persona's `sample` line, in that voice — the audio check                  |
+| `/persona mode coding\|talking`                                                       | coding leaves the system prompt alone; talking injects the persona                 |
+| **the voices** — `~/.pi/agent/pi-tts/personas.json`                                   |                                                                                    |
+| `/persona <name>`                                                                     | switch voice (and personality) mid-session                                         |
+| `/persona add`                                                                        | guided: path to the clip, what it says, a name, a personality                      |
+| `/persona manage`                                                                     | the voices submenu: use a voice, change its details, remove it                     |
+| `/persona edit <name>`                                                                | change one entry, each question showing what is filed now                          |
+| `/persona remove <name>`                                                              | drop it from the file; the clip stays on disk                                      |
+| `/persona list`                                                                       | the voices this session loaded, and the file they came from                        |
+| **dictation**                                                                         |                                                                                    |
+| `ctrl+i`                                                                              | press to talk, press again to stop                                                 |
+| `ctrl+shift+i`                                                                        | throw the capture away                                                             |
+| `/persona listen`                                                                     | start dictating — the same thing `ctrl+i` does                                     |
+| `/persona listen stop\|cancel\|on\|off\|consecutive\|conversation\|auto\|file <path>` | dictation, by command                                                              |
 
 A voice is keyed by the name you type after `/persona`, so those subcommand names are reserved and
 cannot be used as a voice: `on off stop say read render measure test mode help listen add list
@@ -178,38 +191,38 @@ which wins over the defaults saved by `s` in the settings window. The names are 
 `pi-tts` ones — the cache directory, the personas file, the extension directory and every `PI_TTS_*`
 variable still carry that prefix; only the project was renamed.
 
-| variable | default | |
-|---|---|---|
-| `PI_TTS_CACHE` | `~/.cache/pi-tts` | venv, models, `ref.wav` |
-| `PI_TTS_PYTHON` | `$PI_TTS_CACHE/venv/bin/python`, else `python3` | needs mlx-audio |
-| `PI_TTS_MODEL` | `$PI_TTS_CACHE/models/Qwen3-TTS-12Hz-0.6B-Base-8bit` | directory or HF repo id |
-| `PI_TTS_ASR_MODEL` | `$PI_TTS_CACHE/models/Qwen3-ASR-0.6B-8bit` | directory or HF repo id |
-| `PI_TTS_PERSONAS` | `~/.pi/agent/pi-tts/personas.json` | the voices |
-| `PI_TTS_PERSONA` | `default` | starting persona |
-| `PI_TTS_REF_AUDIO`<br>`PI_TTS_REF_TEXT`<br>`PI_TTS_LANG` | from the persona | clip, its transcript and language, for the persona the session starts with |
-| `PI_TTS_THINKING` | from the persona | `minimal` \| `medium` \| `high` |
-| `PI_TTS_MODE` | `coding` | `coding` \| `talking` |
-| `PI_TTS_VOICE_ENABLED` | `1` | |
-| `PI_TTS_VOLUME` | `0.1` | output gain, 0.0–1.0 |
-| `PI_TTS_MAX_CHARS` | `700` | spoken text cap |
-| `PI_TTS_READ_MAX_CHARS` | `12000` | longest `/persona read` will speak |
-| `PI_TTS_RENDER_DIR` | `~/.cache/pi-tts/rendered` | where `/persona render` writes |
-| `PI_TTS_RENDER_FORMAT` | `mp3` | `mp3` \| `wav` for an unnamed output; a name you pass wins |
-| `PI_TTS_RENDER_PIECE_CHARS` | `1200` | characters per synthesis request when rendering |
-| `PI_TTS_RENDER_MAX_CHARS` | `200000` | longest document `/persona render` will take |
-| `PI_TTS_RENDER_VOLUME` | `1.0` | gain of the written file, independent of the spoken volume |
-| `PI_TTS_RENDER_SPEECH_RATE` | `16` | characters per second of speech, assumed by `/persona measure` |
-| `PI_TTS_RENDER_SPEED` | `2.4` | audio seconds per second of wall clock, assumed by `/persona measure` |
-| `PI_TTS_STREAM_INTERVAL` | `1.0` | seconds of speech per chunk |
-| `PI_TTS_STT_SHORTCUT` | `ctrl+i` | |
-| `PI_TTS_STT_CANCEL_SHORTCUT` | `ctrl+shift+i` | |
-| `PI_TTS_STT_MAX_SECONDS` | `60` | longest single capture |
-| `PI_TTS_STT_MODE` | `consecutive` | `consecutive` \| `conversation` |
-| `PI_TTS_STT_AUTO` | `1` | conversation mode reopens the mic after each reply |
-| `PI_TTS_ASR_LANG` | auto-detect | language hint for dictation |
-| `PI_TTS_ASR_DEVICE` | system default | input device index or name |
-| `PI_TTS_SETTINGS_FILE` | `~/.pi/agent/pi-tts.json` | where `s` writes |
-| `PI_TTS_DEBUG` | `1` | `0` stops the dictation trace |
+| variable                                                 | default                                              |                                                                            |
+| -------------------------------------------------------- | ---------------------------------------------------- | -------------------------------------------------------------------------- |
+| `PI_TTS_CACHE`                                           | `~/.cache/pi-tts`                                    | venv, models, `ref.wav`                                                    |
+| `PI_TTS_PYTHON`                                          | `$PI_TTS_CACHE/venv/bin/python`, else `python3`      | needs mlx-audio                                                            |
+| `PI_TTS_MODEL`                                           | `$PI_TTS_CACHE/models/Qwen3-TTS-12Hz-0.6B-Base-8bit` | directory or HF repo id                                                    |
+| `PI_TTS_ASR_MODEL`                                       | `$PI_TTS_CACHE/models/Qwen3-ASR-0.6B-8bit`           | directory or HF repo id                                                    |
+| `PI_TTS_PERSONAS`                                        | `~/.pi/agent/pi-tts/personas.json`                   | the voices                                                                 |
+| `PI_TTS_PERSONA`                                         | `default`                                            | starting persona                                                           |
+| `PI_TTS_REF_AUDIO`<br>`PI_TTS_REF_TEXT`<br>`PI_TTS_LANG` | from the persona                                     | clip, its transcript and language, for the persona the session starts with |
+| `PI_TTS_THINKING`                                        | from the persona                                     | `minimal` \| `medium` \| `high`                                            |
+| `PI_TTS_MODE`                                            | `coding`                                             | `coding` \| `talking`                                                      |
+| `PI_TTS_VOICE_ENABLED`                                   | `1`                                                  |                                                                            |
+| `PI_TTS_VOLUME`                                          | `0.1`                                                | output gain, 0.0–1.0                                                       |
+| `PI_TTS_MAX_CHARS`                                       | `700`                                                | spoken text cap                                                            |
+| `PI_TTS_READ_MAX_CHARS`                                  | `12000`                                              | longest `/persona read` will speak                                         |
+| `PI_TTS_RENDER_DIR`                                      | `~/.cache/pi-tts/rendered`                           | where `/persona render` writes                                             |
+| `PI_TTS_RENDER_FORMAT`                                   | `mp3`                                                | `mp3` \| `wav` for an unnamed output; a name you pass wins                 |
+| `PI_TTS_RENDER_PIECE_CHARS`                              | `1200`                                               | characters per synthesis request when rendering                            |
+| `PI_TTS_RENDER_MAX_CHARS`                                | `200000`                                             | longest document `/persona render` will take                               |
+| `PI_TTS_RENDER_VOLUME`                                   | `1.0`                                                | gain of the written file, independent of the spoken volume                 |
+| `PI_TTS_RENDER_SPEECH_RATE`                              | `16`                                                 | characters per second of speech, assumed by `/persona measure`             |
+| `PI_TTS_RENDER_SPEED`                                    | `2.4`                                                | audio seconds per second of wall clock, assumed by `/persona measure`      |
+| `PI_TTS_STREAM_INTERVAL`                                 | `1.0`                                                | seconds of speech per chunk                                                |
+| `PI_TTS_STT_SHORTCUT`                                    | `ctrl+i`                                             |                                                                            |
+| `PI_TTS_STT_CANCEL_SHORTCUT`                             | `ctrl+shift+i`                                       |                                                                            |
+| `PI_TTS_STT_MAX_SECONDS`                                 | `60`                                                 | longest single capture                                                     |
+| `PI_TTS_STT_MODE`                                        | `consecutive`                                        | `consecutive` \| `conversation`                                            |
+| `PI_TTS_STT_AUTO`                                        | `1`                                                  | conversation mode reopens the mic after each reply                         |
+| `PI_TTS_ASR_LANG`                                        | auto-detect                                          | language hint for dictation                                                |
+| `PI_TTS_ASR_DEVICE`                                      | system default                                       | input device index or name                                                 |
+| `PI_TTS_SETTINGS_FILE`                                   | `~/.pi/agent/pi-tts.json`                            | where `s` writes                                                           |
+| `PI_TTS_DEBUG`                                           | `1`                                                  | `0` stops the dictation trace                                              |
 
 The helpers take their own knobs (`QWEN_TTS_TEMPERATURE`, `QWEN_TTS_TOP_K`, `QWEN_TTS_PREROLL`,
 `QWEN_TTS_LATENCY`, `QWEN_TTS_RENDER_INTERVAL`, `QWEN_ASR_THRESHOLD`, `QWEN_ASR_SILENCE_SECONDS`,
@@ -264,3 +277,17 @@ two models are downloaded at setup time under Apache-2.0 (`mlx-community` conver
 `Qwen/Qwen3-TTS-12Hz-0.6B-Base` and `Qwen/Qwen3-ASR-0.6B`), and the reference clips are yours:
 whatever you download from a game, a podcast or your own recordings stays your problem, which is
 why none are in this repo.
+
+---
+
+Voice-clause notice (not part of the MIT grant above)
+
+The MIT grant covers the code in this repository. It does not cover any voice.
+
+A voice in this project is a reference clip you supply, and a clip is somebody's property and
+often somebody's personality. Cloning a real person's voice without their consent is not allowed
+by this license and is not condoned by the author: get consent, or use a clip you have the right
+to clone in this way, and follow the terms of wherever the clip came from.
+
+The same applies to the two models, which are downloaded at setup time under Apache-2.0, and to
+whatever the voice says once it is running. You choose the clip; you carry the consequences.
